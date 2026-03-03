@@ -120,11 +120,11 @@ class Cat{
   setGround(y){if(this.ol)return;if(this.y<=y+.05&&this.vy<=0){this.og=true;this.y=y;this.vy=0;this.jc=0}}
 }
 class Chunk{
-  constructor(z){this.z=z;this.g=new THREE.Group();scene.add(this.g);this._b()}
+  constructor(z){this.z=z;this.g=new THREE.Group();this.g.position.z=z;scene.add(this.g);this._b()}
   _b(){
-    const gnd=box(LW*3+2,.4,CL,COL.sand);gnd.position.set(0,-.2,this.z-CL/2);this.g.add(gnd);
-    for(let s=-1;s<=1;s+=2){const d=box(3,2+Math.random()*3,CL,COL.sandD);d.position.set(s*(LW*1.5+2),.5,this.z-CL/2);this.g.add(d);for(let i=0;i<4;i++){const b=sphere(.8+Math.random()*1.2,COL.sandL);b.position.set(s*(LW*1.5+1.5+Math.random()*1.5),.5+Math.random()*1.5,this.z-CL*Math.random());b.scale.set(1.5,1,1.5);this.g.add(b)}}
-    for(let i=0;i<6;i++){const d=sphere(4+Math.random()*5,COL.sandD);d.position.set((Math.random()>.5?1:-1)*(12+Math.random()*10),2,this.z-Math.random()*CL);d.scale.set(1.5,.6,1.5);this.g.add(d)}
+    const gnd=box(LW*3+2,.4,CL,COL.sand);gnd.position.set(0,-.2,-CL/2);this.g.add(gnd);
+    for(let s=-1;s<=1;s+=2){const d=box(3,2+Math.random()*3,CL,COL.sandD);d.position.set(s*(LW*1.5+2),.5,-CL/2);this.g.add(d);for(let i=0;i<4;i++){const b=sphere(.8+Math.random()*1.2,COL.sandL);b.position.set(s*(LW*1.5+1.5+Math.random()*1.5),.5+Math.random()*1.5,-CL*Math.random());b.scale.set(1.5,1,1.5);this.g.add(b)}}
+    for(let i=0;i<6;i++){const d=sphere(4+Math.random()*5,COL.sandD);d.position.set((Math.random()>.5?1:-1)*(12+Math.random()*10),2,-Math.random()*CL);d.scale.set(1.5,.6,1.5);this.g.add(d)}
   }
   rm(){this.g.traverse(c=>{if(c.geometry)c.geometry.dispose();if(c.material){if(Array.isArray(c.material))c.material.forEach(m=>m.dispose());else c.material.dispose()}});scene.remove(this.g)}
 }
@@ -221,8 +221,8 @@ function init(){
   const toRm=[];scene.traverse(o=>{if(o!==scene&&o!==sunM&&o!==glowM&&o.parent===scene&&!(o instanceof THREE.Light))toRm.push(o)});toRm.forEach(o=>scene.remove(o));
   scene.add(amb,sun,fill,sunM,glowM);
   score=0;lives=3;speed=IS;dist=0;level=1;running=false;gameOver=false;pu={shield:0,magnet:0,speed:0};chunks=[];objects=[];particles=[];
-  cat=new Cat();nextCZ=10;spawnZ=-CL;
-  for(let i=0;i<CA;i++){chunks.push(new Chunk(nextCZ));nextCZ-=CL}
+  cat=new Cat();spawnZ=-CL;
+  for(let i=0;i<CA;i++){chunks.push(new Chunk(5-i*CL))}
   updHUD();document.querySelectorAll('.pu').forEach(b=>b.classList.remove('on'));
 }
 function updHUD(){$('sc').textContent=score.toLocaleString();$('hi').textContent=lbBest().toLocaleString();$('lv').textContent='❤️'.repeat(lives)+'🖤'.repeat(Math.max(0,3-lives));$('lvl').textContent=level}
@@ -232,7 +232,7 @@ function loop(ts){
   if(!running)return;
   const es=speed*(pu.speed>0?1.5:1);speed=Math.min(MS,IS+dist*SI);level=Math.floor(1+dist/150);dist+=es*dt;score+=Math.round(es*dt*2);
   const mz=es*dt;chunks.forEach(c=>c.g.position.z+=mz);objects.forEach(o=>o.g.position.z+=mz);sunM.position.z+=mz*.01;glowM.position.z+=mz*.01;
-  const lc=chunks[chunks.length-1];if(lc&&lc.g.position.z>-CL*(CA-1)){chunks.push(new Chunk(nextCZ));nextCZ-=CL}
+  const lc=chunks[chunks.length-1];if(lc&&lc.g.position.z>-CL*2){chunks.push(new Chunk(lc.g.position.z-CL))}
   while(chunks.length&&chunks[0].g.position.z>80){chunks[0].rm();chunks.shift()}
   spawnZ+=mz;if(spawnZ>0){spawnObj(-(CL*CA-10+Math.random()*15),level);spawnZ=-Math.max(8,20+Math.random()*10-Math.min(level,40)*.5)}
   for(let i=objects.length-1;i>=0;i--)if(objects[i].g.position.z>20){objects[i].rm();objects.splice(i,1)}
