@@ -96,6 +96,7 @@ class Cat{
     this.lfr=this.lfl.clone();this.lfr.position.set(.22,-.01,.18);this.g.add(this.lfr);
     this.lbl=this.lfl.clone();this.lbl.position.set(-.22,-.01,-.2);this.g.add(this.lbl);
     this.lbr=this.lfl.clone();this.lbr.position.set(.22,-.01,-.2);this.g.add(this.lbr);
+    this.g.rotation.y = Math.PI;
     this.g.position.set(LANES[1],0,0);
   }
   jump(){if(this.jc<this.mj){this.vy=JF;this.og=false;this.ol=false;this.jc++;if(this.jc>1)toast('🐱 Double Jump!')}}
